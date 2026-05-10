@@ -1,28 +1,17 @@
-import express from 'express';
-import authUser from '../middlewares/authUser.js';
-import authSeller from '../middlewares/authSeller.js';
+import express from "express";
+import authUser from "../middlewares/authUser.js";
 
 import {
-  getAllOrders,
-  getUserOrders,
-  placeOrderCOD,
-  placeOrderStripe
-} from '../controllers/orderController.js';
+    updateCart,
+    getUserCart
+} from "../controllers/cartController.js";
 
-const orderRouter = express.Router();
+const cartRouter = express.Router();
 
-// COD Order
-orderRouter.post('/cod', authUser, placeOrderCOD);
+// Update Cart
+cartRouter.post('/update', authUser, updateCart);
 
-// Stripe Order
-orderRouter.post('/stripe', authUser, placeOrderStripe);
+// Get User Cart
+cartRouter.get('/get', authUser, getUserCart);
 
-// User Orders
-orderRouter.get('/user', authUser, getUserOrders);
-
-// Seller Orders
-orderRouter.get('/seller', authSeller, getAllOrders);
-
-export default orderRouter;
-
-
+export default cartRouter;
