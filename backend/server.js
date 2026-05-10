@@ -99,11 +99,12 @@ await connectDB();
 // CLOUDINARY CONNECTION
 await connectCloudinary();
 
-// ALLOWED ORIGINS
+// ALLOWED FRONTEND ORIGINS
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://greencart-backend-99mmu3j27-khushikumari27xs-projects.vercel.app/",
+  "https://green-cart-mocha-phi.vercel.app",
+  "https://green-cart-ms3dj24yk-khushikumari27xs-projects.vercel.app",
 ];
 
 // STRIPE WEBHOOK
@@ -143,5 +144,5 @@ app.use("/api/address", addressRouter);
 
 app.use("/api/order", orderRouter);
 
-// EXPORT APP FOR VERCEL
+// EXPORT APP
 export default app;
