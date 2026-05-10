@@ -17,7 +17,7 @@ const ProductList = () => {
     try {
 
       const { data } = await axios.post(
-        "https://greencart-backend-99mmu3j27-khushikumari27xs-projects.vercel.app/api/product/stock",
+        "https://greencart-backend-85xnosoo6-khushikumari27xs-projects.vercel.app//api/product/stock",
         { id, inStock },
         { withCredentials: true }
       );

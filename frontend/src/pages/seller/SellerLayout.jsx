@@ -18,7 +18,7 @@ const SellerLayout = () => {
   try {
 
     const { data } = await axios.get(
-      'https://greencart-backend-99mmu3j27-khushikumari27xs-projects.vercel.app/api/seller/logout',
+      'https://greencart-backend-85xnosoo6-khushikumari27xs-projects.vercel.app//api/seller/logout',
       { withCredentials: true }
     );
 
