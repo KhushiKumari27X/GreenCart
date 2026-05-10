@@ -240,69 +240,35 @@ import cartRouter from "./routes/cartRoute.js";
 import addressRouter from "./routes/addressRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 
-import { stripeWebhooks } from "./controllers/orderController.js";
-
 const app = express();
 
-// ==========================================
-// DATABASE CONNECTION
-// ==========================================
+// DATABASE
 connectDB();
 
-// ==========================================
-// CLOUDINARY CONNECTION
-// ==========================================
+// CLOUDINARY
 connectCloudinary();
 
-// ==========================================
-// CORS CONFIG
-// ==========================================
-app.use(
-  cors({
-    origin: "https://green-cart-mocha-phi.vercel.app",
-    credentials: true,
-  })
-);
+// CORS
+app.use(cors({
+  origin: "https://green-cart-mocha-phi.vercel.app",
+  credentials: true
+}));
 
-// ==========================================
 // MIDDLEWARES
-// ==========================================
 app.use(express.json());
-
 app.use(cookieParser());
 
-// ==========================================
-// STRIPE WEBHOOK
-// ==========================================
-app.post(
-  "/stripe",
-  express.raw({ type: "application/json" }),
-  stripeWebhooks
-);
-
-// ==========================================
 // TEST ROUTE
-// ==========================================
 app.get("/", (req, res) => {
   res.send("API is Working");
 });
 
-// ==========================================
 // ROUTES
-// ==========================================
 app.use("/api/user", userRouter);
-
 app.use("/api/seller", sellerRouter);
-
 app.use("/api/product", productRouter);
-
 app.use("/api/cart", cartRouter);
-
 app.use("/api/address", addressRouter);
-
 app.use("/api/order", orderRouter);
 
-// ==========================================
-// EXPORT APP
-// ==========================================
 export default app;
