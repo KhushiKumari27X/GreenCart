@@ -385,19 +385,442 @@
 //   }
 
 // };
+// import Order from "../models/Order.js";
+// import Product from "../models/Product.js";
+// import Stripe from "stripe";
+// import User from "../models/User.js";
+
+// // Place Order COD : /api/order/cod
+// export const placeOrderCOD = async (req, res) => {
+
+//   try {
+
+//     const { userId, items, address } = req.body;
+
+//     if (!address || items.length === 0) {
+
+//       return res.json({
+//         success: false,
+//         message: "Invalid data"
+//       });
+
+//     }
+
+//     // Calculate Amount Using Items
+//     let amount = await items.reduce(async (acc, item) => {
+
+//       const product = await Product.findById(item.product);
+
+//       return (await acc) + product.offerPrice * item.quantity;
+
+//     }, 0);
+
+//     // Add Tax Charge (2%)
+//     amount += Math.floor(amount * 0.02);
+
+//     await Order.create({
+
+//       userId,
+
+//       items,
+
+//       amount,
+
+//       address,
+
+//       paymentType: "COD",
+
+//       isPaid: false
+
+//     });
+
+//     return res.json({
+
+//       success: true,
+
+//       message: "Order Placed Successfully"
+
+//     });
+
+//   } catch (error) {
+
+//     return res.json({
+
+//       success: false,
+
+//       message: error.message
+
+//     });
+
+//   }
+
+// };
+
+// // Place Order Stripe : /api/order/stripe
+// export const placeOrderStripe = async (req, res) => {
+
+//   try {
+
+//     const { userId, items, address } = req.body;
+
+//     const { origin } = req.headers;
+
+//     if (!address || items.length === 0) {
+
+//       return res.json({
+//         success: false,
+//         message: "Invalid data"
+//       });
+
+//     }
+
+//     let productData = [];
+
+//     // Calculate Amount Using Items
+//     let amount = await items.reduce(async (acc, item) => {
+
+//       const product = await Product.findById(item.product);
+
+//       productData.push({
+//         name: product.name,
+//         price: product.offerPrice,
+//         quantity: item.quantity,
+//       });
+
+//       return (await acc) + product.offerPrice * item.quantity;
+
+//     }, 0);
+
+//     // Add Tax Charge (2%)
+//     amount += Math.floor(amount * 0.02);
+
+//     const order = await Order.create({
+
+//       userId,
+
+//       items,
+
+//       amount,
+
+//       address,
+
+//       paymentType: "Online",
+
+//       isPaid: false
+
+//     });
+
+//     // Stripe Gateway Initialize
+//     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//     // Create line items for Stripe
+//     const line_items = productData.map((item) => {
+
+//       return {
+
+//         price_data: {
+
+//           currency: "usd",
+
+//           product_data: {
+//             name: item.name,
+//           },
+
+//           unit_amount:
+//             Math.floor(item.price + item.price * 0.02) * 100
+
+//         },
+
+//         quantity: item.quantity,
+
+//       };
+
+//     });
+
+//     // Create Stripe Session
+//     const session =
+//       await stripeInstance.checkout.sessions.create({
+
+//         line_items,
+
+//         mode: "payment",
+
+//         success_url:
+//           `${origin}/loader?next=my-orders&success=true&orderId=${order._id}`,
+
+//         cancel_url:
+//           `${origin}/loader?next=cart&success=false&orderId=${order._id}`,
+
+//         metadata: {
+
+//           orderId: order._id.toString(),
+
+//           userId,
+
+//         }
+
+//       });
+
+//     return res.json({
+
+//       success: true,
+
+//       url: session.url
+
+//     });
+
+//   } catch (error) {
+
+//     return res.json({
+
+//       success: false,
+
+//       message: error.message
+
+//     });
+
+//   }
+
+// };
+
+// // VERIFY STRIPE PAYMENT
+// export const verifyStripe = async (req, res) => {
+
+//   try {
+
+//     const { orderId, success } = req.body;
+
+//     if (success === "true") {
+
+//       await Order.findByIdAndUpdate(orderId, {
+//         isPaid: true
+//       });
+
+//       return res.json({
+//         success: true,
+//         message: "Payment Successful"
+//       });
+
+//     } else {
+
+//       await Order.findByIdAndDelete(orderId);
+
+//       return res.json({
+//         success: false,
+//         message: "Payment Failed"
+//       });
+
+//     }
+
+//   } catch (error) {
+
+//     return res.json({
+//       success: false,
+//       message: error.message
+//     });
+
+//   }
+
+// };
+
+// // Stripe webhooks to Verify Payments Actions : /stripe
+// export const stripeWebhooks = async (request, response) => {
+
+//     // Stripe Gateway Initialize
+//     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//     const sig = request.headers["stripe-signature"];
+//     let event;
+
+//     try {
+
+//         event = stripeInstance.webhooks.constructEvent(
+//             request.body,
+//             sig,
+//             process.env.STRIPE_WEBHOOK_SECRET
+//         );
+
+//     } catch (error) {
+
+//         return response
+//             .status(400)
+//             .send(`Webhook Error: ${error.message}`);
+
+//     }
+
+//     // Handle the event
+//     switch (event.type) {
+
+//         case "payment_intent.succeeded": {
+
+//             const paymentIntent = event.data.object;
+//             const paymentIntentId = paymentIntent.id;
+
+//             // Getting Session Metadata
+//             const session =
+//                 await stripeInstance.checkout.sessions.list({
+//                     payment_intent: paymentIntentId,
+//                 });
+
+//             const { orderId, userId } =
+//                 session.data[0].metadata;
+
+//             // Mark Payment as Paid
+//             await Order.findByIdAndUpdate(
+//                 orderId,
+//                 { isPaid: true }
+//             );
+
+//             // Clear user Cart
+//             await User.findByIdAndUpdate(
+//                 userId,
+//                 { cartItems: {} }
+//             );
+
+//             break;
+//         }
+
+//         case "payment_intent.payment_failed": {
+
+//             const paymentIntent = event.data.object;
+//             const paymentIntentId = paymentIntent.id;
+
+//             // Getting Session Metadata
+//             const session =
+//                 await stripeInstance.checkout.sessions.list({
+//                     payment_intent: paymentIntentId,
+//                 });
+
+//             const { orderId } =
+//                 session.data[0].metadata;
+
+//             await Order.findByIdAndDelete(orderId);
+
+//             break;
+//         }
+
+//         default:
+
+//             console.log(
+//                 `Unhandled event type ${event.type}`
+//             );
+
+//             break;
+//     }
+
+//     response.json({ received: true });
+
+// };
+
+// // Get Orders by User ID : /api/order/user
+// export const getUserOrders = async (req, res) => {
+
+//   try {
+
+//     const userId = req.userId;
+
+//     const orders = await Order.find({
+
+//       $or: [
+//         { paymentType: "COD" },
+//         { isPaid: true }
+//       ],
+
+//       userId,
+
+//     })
+
+//       .populate("items.product")
+
+//       .populate("address")
+
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+
+//       success: true,
+
+//       orders
+
+//     });
+
+//   } catch (error) {
+
+//     res.json({
+
+//       success: false,
+
+//       message: error.message
+
+//     });
+
+//   }
+
+// };
+
+// // Get All Orders (for seller / admin) : /api/order/seller
+// export const getAllOrders = async (req, res) => {
+
+//   try {
+
+//     const orders = await Order.find({
+
+//       $or: [
+//         { paymentType: "COD" },
+//         { isPaid: true }
+//       ],
+
+//     })
+
+//       .populate("items.product")
+
+//       .populate("address")
+
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+
+//       success: true,
+
+//       orders
+
+//     });
+
+//   } catch (error) {
+
+//     res.json({
+
+//       success: false,
+
+//       message: error.message
+
+//     });
+
+//   }
+
+// };
+
+
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import Stripe from "stripe";
 import User from "../models/User.js";
 
-// Place Order COD : /api/order/cod
+// ==========================================
+// PLACE ORDER COD : /api/order/cod
+// ==========================================
 export const placeOrderCOD = async (req, res) => {
 
   try {
 
-    const { userId, items, address } = req.body;
+    // USER ID FROM AUTH MIDDLEWARE
+    const userId = req.userId;
 
-    if (!address || items.length === 0) {
+    // DATA FROM FRONTEND
+    const { items, address } = req.body;
+
+    // VALIDATION
+    if (!address || !items || items.length === 0) {
 
       return res.json({
         success: false,
@@ -406,18 +829,23 @@ export const placeOrderCOD = async (req, res) => {
 
     }
 
-    // Calculate Amount Using Items
-    let amount = await items.reduce(async (acc, item) => {
+    // CALCULATE AMOUNT
+    let amount = 0;
+
+    for (const item of items) {
 
       const product = await Product.findById(item.product);
 
-      return (await acc) + product.offerPrice * item.quantity;
+      if (product) {
+        amount += product.offerPrice * item.quantity;
+      }
 
-    }, 0);
+    }
 
-    // Add Tax Charge (2%)
+    // ADD TAX (2%)
     amount += Math.floor(amount * 0.02);
 
+    // CREATE ORDER
     await Order.create({
 
       userId,
@@ -434,6 +862,11 @@ export const placeOrderCOD = async (req, res) => {
 
     });
 
+    // CLEAR USER CART
+    await User.findByIdAndUpdate(userId, {
+      cartItems: {}
+    });
+
     return res.json({
 
       success: true,
@@ -443,6 +876,8 @@ export const placeOrderCOD = async (req, res) => {
     });
 
   } catch (error) {
+
+    console.log(error.message);
 
     return res.json({
 
@@ -456,16 +891,22 @@ export const placeOrderCOD = async (req, res) => {
 
 };
 
-// Place Order Stripe : /api/order/stripe
+// ==========================================
+// PLACE ORDER STRIPE : /api/order/stripe
+// ==========================================
 export const placeOrderStripe = async (req, res) => {
 
   try {
 
-    const { userId, items, address } = req.body;
+    // USER ID FROM AUTH MIDDLEWARE
+    const userId = req.userId;
+
+    const { items, address } = req.body;
 
     const { origin } = req.headers;
 
-    if (!address || items.length === 0) {
+    // VALIDATION
+    if (!address || !items || items.length === 0) {
 
       return res.json({
         success: false,
@@ -476,24 +917,31 @@ export const placeOrderStripe = async (req, res) => {
 
     let productData = [];
 
-    // Calculate Amount Using Items
-    let amount = await items.reduce(async (acc, item) => {
+    // CALCULATE AMOUNT
+    let amount = 0;
+
+    for (const item of items) {
 
       const product = await Product.findById(item.product);
 
-      productData.push({
-        name: product.name,
-        price: product.offerPrice,
-        quantity: item.quantity,
-      });
+      if (product) {
 
-      return (await acc) + product.offerPrice * item.quantity;
+        productData.push({
+          name: product.name,
+          price: product.offerPrice,
+          quantity: item.quantity,
+        });
 
-    }, 0);
+        amount += product.offerPrice * item.quantity;
 
-    // Add Tax Charge (2%)
+      }
+
+    }
+
+    // ADD TAX
     amount += Math.floor(amount * 0.02);
 
+    // CREATE ORDER
     const order = await Order.create({
 
       userId,
@@ -510,10 +958,10 @@ export const placeOrderStripe = async (req, res) => {
 
     });
 
-    // Stripe Gateway Initialize
+    // STRIPE INITIALIZE
     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // Create line items for Stripe
+    // CREATE STRIPE LINE ITEMS
     const line_items = productData.map((item) => {
 
       return {
@@ -537,7 +985,7 @@ export const placeOrderStripe = async (req, res) => {
 
     });
 
-    // Create Stripe Session
+    // CREATE STRIPE SESSION
     const session =
       await stripeInstance.checkout.sessions.create({
 
@@ -571,6 +1019,8 @@ export const placeOrderStripe = async (req, res) => {
 
   } catch (error) {
 
+    console.log(error.message);
+
     return res.json({
 
       success: false,
@@ -583,7 +1033,9 @@ export const placeOrderStripe = async (req, res) => {
 
 };
 
+// ==========================================
 // VERIFY STRIPE PAYMENT
+// ==========================================
 export const verifyStripe = async (req, res) => {
 
   try {
@@ -623,96 +1075,98 @@ export const verifyStripe = async (req, res) => {
 
 };
 
-// Stripe webhooks to Verify Payments Actions : /stripe
+// ==========================================
+// STRIPE WEBHOOKS
+// ==========================================
 export const stripeWebhooks = async (request, response) => {
 
-    // Stripe Gateway Initialize
-    const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const sig = request.headers["stripe-signature"];
-    let event;
+  const sig = request.headers["stripe-signature"];
 
-    try {
+  let event;
 
-        event = stripeInstance.webhooks.constructEvent(
-            request.body,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET
-        );
+  try {
 
-    } catch (error) {
+    event = stripeInstance.webhooks.constructEvent(
+      request.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
-        return response
-            .status(400)
-            .send(`Webhook Error: ${error.message}`);
+  } catch (error) {
 
+    return response
+      .status(400)
+      .send(`Webhook Error: ${error.message}`);
+
+  }
+
+  switch (event.type) {
+
+    case "payment_intent.succeeded": {
+
+      const paymentIntent = event.data.object;
+
+      const paymentIntentId = paymentIntent.id;
+
+      const session =
+        await stripeInstance.checkout.sessions.list({
+          payment_intent: paymentIntentId,
+        });
+
+      const { orderId, userId } =
+        session.data[0].metadata;
+
+      // MARK ORDER PAID
+      await Order.findByIdAndUpdate(
+        orderId,
+        { isPaid: true }
+      );
+
+      // CLEAR CART
+      await User.findByIdAndUpdate(
+        userId,
+        { cartItems: {} }
+      );
+
+      break;
     }
 
-    // Handle the event
-    switch (event.type) {
+    case "payment_intent.payment_failed": {
 
-        case "payment_intent.succeeded": {
+      const paymentIntent = event.data.object;
 
-            const paymentIntent = event.data.object;
-            const paymentIntentId = paymentIntent.id;
+      const paymentIntentId = paymentIntent.id;
 
-            // Getting Session Metadata
-            const session =
-                await stripeInstance.checkout.sessions.list({
-                    payment_intent: paymentIntentId,
-                });
+      const session =
+        await stripeInstance.checkout.sessions.list({
+          payment_intent: paymentIntentId,
+        });
 
-            const { orderId, userId } =
-                session.data[0].metadata;
+      const { orderId } =
+        session.data[0].metadata;
 
-            // Mark Payment as Paid
-            await Order.findByIdAndUpdate(
-                orderId,
-                { isPaid: true }
-            );
+      await Order.findByIdAndDelete(orderId);
 
-            // Clear user Cart
-            await User.findByIdAndUpdate(
-                userId,
-                { cartItems: {} }
-            );
-
-            break;
-        }
-
-        case "payment_intent.payment_failed": {
-
-            const paymentIntent = event.data.object;
-            const paymentIntentId = paymentIntent.id;
-
-            // Getting Session Metadata
-            const session =
-                await stripeInstance.checkout.sessions.list({
-                    payment_intent: paymentIntentId,
-                });
-
-            const { orderId } =
-                session.data[0].metadata;
-
-            await Order.findByIdAndDelete(orderId);
-
-            break;
-        }
-
-        default:
-
-            console.log(
-                `Unhandled event type ${event.type}`
-            );
-
-            break;
+      break;
     }
 
-    response.json({ received: true });
+    default:
+
+      console.log(`Unhandled event type ${event.type}`);
+
+      break;
+
+  }
+
+  response.json({ received: true });
 
 };
 
-// Get Orders by User ID : /api/order/user
+// ==========================================
+// GET USER ORDERS : /api/order/user
+// ==========================================
 export const getUserOrders = async (req, res) => {
 
   try {
@@ -736,7 +1190,7 @@ export const getUserOrders = async (req, res) => {
 
       .sort({ createdAt: -1 });
 
-    res.json({
+    return res.json({
 
       success: true,
 
@@ -746,7 +1200,7 @@ export const getUserOrders = async (req, res) => {
 
   } catch (error) {
 
-    res.json({
+    return res.json({
 
       success: false,
 
@@ -758,7 +1212,9 @@ export const getUserOrders = async (req, res) => {
 
 };
 
-// Get All Orders (for seller / admin) : /api/order/seller
+// ==========================================
+// GET ALL ORDERS : /api/order/seller
+// ==========================================
 export const getAllOrders = async (req, res) => {
 
   try {
@@ -778,7 +1234,7 @@ export const getAllOrders = async (req, res) => {
 
       .sort({ createdAt: -1 });
 
-    res.json({
+    return res.json({
 
       success: true,
 
@@ -788,7 +1244,7 @@ export const getAllOrders = async (req, res) => {
 
   } catch (error) {
 
-    res.json({
+    return res.json({
 
       success: false,
 
