@@ -28,7 +28,8 @@ await connectCloudinary();
 // ALLOWED ORIGINS
 const allowedOrigins = [
     "http://localhost:5173",
-    "http://localhost:5174"
+    "http://localhost:5174",
+    "https://green-cart-mocha-phi.vercel.app"
 ];
 
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
