@@ -247,41 +247,22 @@ const app = express();
 // ==========================================
 // DATABASE CONNECTION
 // ==========================================
-await connectDB();
+connectDB();
 
 // ==========================================
 // CLOUDINARY CONNECTION
 // ==========================================
-await connectCloudinary();
+connectCloudinary();
 
 // ==========================================
 // CORS CONFIG
 // ==========================================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://green-cart-mocha-phi.vercel.app"
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-
-      // ALLOW REQUESTS WITH NO ORIGIN
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS Not Allowed"));
-      }
-
-    },
+    origin: "https://green-cart-mocha-phi.vercel.app",
     credentials: true,
   })
 );
-
-// HANDLE PREFLIGHT REQUESTS
-app.options("*", cors());
 
 // ==========================================
 // MIDDLEWARES
