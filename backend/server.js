@@ -103,7 +103,7 @@ await connectCloudinary();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://green-cart-mocha-phi.vercel.app",
+  "https://greencart-backend-99mmu3j27-khushikumari27xs-projects.vercel.app/",
 ];
 
 // STRIPE WEBHOOK
