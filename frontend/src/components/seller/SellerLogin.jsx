@@ -16,7 +16,7 @@ const SellerLogin = () => {
       event.preventDefault();
 
       const { data } = await axios.post(
-        "https://greencart-backend-85xnosoo6-khushikumari27xs-projects.vercel.app/api/seller/login",
+        "/api/seller/login",
         { email, password },
         { withCredentials: true }
       );

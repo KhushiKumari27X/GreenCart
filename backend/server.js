@@ -99,14 +99,6 @@ await connectDB();
 // CLOUDINARY CONNECTION
 await connectCloudinary();
 
-// ALLOWED FRONTEND ORIGINS
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://green-cart-mocha-phi.vercel.app",
-  "https://green-cart-ms3dj24yk-khushikumari27xs-projects.vercel.app",
-];
-
 // STRIPE WEBHOOK
 app.post(
   "/stripe",
@@ -121,7 +113,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: true,
     credentials: true,
   })
 );

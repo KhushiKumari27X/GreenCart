@@ -42,7 +42,7 @@ const AddProduct = () => {
       }
 
       const { data } = await axios.post(
-        'https://greencart-backend-85xnosoo6-khushikumari27xs-projects.vercel.app/api/product/add',
+        '/api/product/add',
         formData,
         {
           withCredentials: true
