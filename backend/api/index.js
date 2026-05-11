@@ -1,3 +1,9 @@
-export default function handler(req, res) {
-  res.status(200).send("API Working");
-}
+import express from "express";
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("API Working");
+});
+
+export default app;
