@@ -272,28 +272,60 @@
 // app.use("/api/order", orderRouter);
 
 // export default app;
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+import userRouter from "./routes/userRoute.js";
+import sellerRouter from "./routes/sellerRoute.js";
+import productRouter from "./routes/productRoute.js";
+import cartRouter from "./routes/cartRoute.js";
+import addressRouter from "./routes/addressRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
 dotenv.config();
 
 const app = express();
 
+// middleware
 app.use(express.json());
-
 app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:5173",
+    credentials: true,
   })
 );
 
-app.get("/api", (req, res) => {
-  res.send("API Working");
+// mongodb connection
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("Database Connected");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+// test route
+app.get("/", (req, res) => {
+  res.send("Backend Working");
 });
 
-export default app;
+// api routes
+app.use("/api/user", userRouter);
+app.use("/api/seller", sellerRouter);
+app.use("/api/product", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/address", addressRouter);
+app.use("/api/order", orderRouter);
+
+// server
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

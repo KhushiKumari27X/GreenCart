@@ -16,7 +16,7 @@ axios.defaults.withCredentials = true;
 
 // DEPLOYED BACKEND URL
 axios.defaults.baseURL =
-    "https://greencart-backend-ten-phi.vercel.app";
+    "http://localhost:4000";
 
 export const AppContext = createContext();
 
