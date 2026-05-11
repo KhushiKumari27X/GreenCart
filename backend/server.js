@@ -276,21 +276,24 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
-// CORS
-app.use(cors({
-  origin: "https://green-cart-mocha-phi.vercel.app",
-  credentials: true
-}));
-
-// MIDDLEWARES
 app.use(express.json());
+
 app.use(cookieParser());
 
-// TEST ROUTE
-app.get("/", (req, res) => {
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
+
+app.get("/api", (req, res) => {
   res.send("API Working");
 });
 
