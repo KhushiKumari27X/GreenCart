@@ -279,14 +279,17 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
+// CORS
 app.use(cors({
   origin: "https://green-cart-mocha-phi.vercel.app",
   credentials: true
 }));
 
+// MIDDLEWARES
 app.use(express.json());
 app.use(cookieParser());
 
+// TEST ROUTE
 app.get("/", (req, res) => {
   res.send("API Working");
 });
