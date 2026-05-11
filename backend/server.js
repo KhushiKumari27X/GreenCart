@@ -260,7 +260,7 @@ app.use(cookieParser());
 
 // TEST ROUTE
 app.get("/", (req, res) => {
-  res.send("API is Working");
+  res.send("API Working");
 });
 
 // ROUTES
