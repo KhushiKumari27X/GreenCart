@@ -3,14 +3,23 @@
 BudgetCart is a full-stack MERN-based grocery e-commerce application where users can browse products, add items to cart, place orders, and manage their shopping experience. It also includes a seller/admin dashboard for product management.
 
 ---
+
 # Live Demo
 
 This project is currently running locally.
 
-## Frontend
+## Frontend (Client)
 
 ```bash
 http://localhost:5173
+```
+
+## Backend (Server)
+
+```bash
+http://localhost:4000
+```
+
 ---
 
 # Features
@@ -34,6 +43,7 @@ http://localhost:5173
 - Upload Product Images
 - View All Orders
 - Manage Products
+- Seller Dashboard
 
 ---
 
