@@ -1,4 +1,4 @@
-# BudgetCart – Full Stack Grocery E-Commerce Web App
+# GreenCart – Full Stack Grocery E-Commerce Web App
 
 BudgetCart is a full-stack MERN-based grocery e-commerce application where users can browse products, add items to cart, place orders, and manage their shopping experience. It also includes a seller/admin dashboard for product management.
 
