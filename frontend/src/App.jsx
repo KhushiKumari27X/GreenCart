@@ -19,7 +19,8 @@ import ProductList from './pages/seller/ProductList'
 import Orders from './pages/seller/Orders'
 import AddProduct from './pages/seller/AddProduct'
 import Loading from './components/Loading'
-
+import Contact from "./pages/Contact";
+import Reviews from "./pages/seller/Reviews";
 const App = () => {
 
   const isSellerPath =  useLocation().pathname.includes("seller");
@@ -40,6 +41,7 @@ const App = () => {
           <Route path='/products/:category' element={<ProductCategory/>} />
           <Route path='/products/:category/:id' element={<ProductDetails/>} />
           <Route path='/cart' element={<Cart/>} />
+          <Route path="/contact" element={<Contact />} />
           <Route path='/add-address' element={<AddAddress/>} />
           <Route path='/my-orders' element={<MyOrders/>} />
           <Route path='/loader' element={<Loading/>} />
@@ -51,6 +53,7 @@ const App = () => {
             <Route index element={<AddProduct/>}/>
             <Route path='product-list' element ={<ProductList/>}/>
             <Route path='orders' element ={<Orders/>}/>
+            <Route path="reviews" element={<Reviews />} />
           </Route>
         </Routes>
       </div>
