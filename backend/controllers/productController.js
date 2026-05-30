@@ -356,6 +356,59 @@ export const deleteProduct = async (req, res) => {
 
 };
 
+// // UPDATE PRODUCT
+// export const updateProduct = async (req, res) => {
+
+//   try {
+
+//     const { id } = req.params;
+
+//     const {
+
+//       name,
+//       description,
+//       quantity,
+//       category,
+//       price,
+//       offerPrice,
+
+//     } = req.body;
+
+//     await Product.findByIdAndUpdate(
+
+//       id,
+
+//       {
+
+//         name,
+//         description,
+//         quantity,
+//         category,
+//         price,
+//         offerPrice,
+
+//       }
+
+//     );
+
+//     res.json({
+//       success: true,
+//       message:
+//         "Product Updated Successfully",
+//     });
+
+//   } catch (error) {
+
+//     console.log(error);
+
+//     res.json({
+//       success: false,
+//       message: error.message,
+//     });
+
+//   }
+
+// };
 // UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
 
@@ -363,38 +416,65 @@ export const updateProduct = async (req, res) => {
 
     const { id } = req.params;
 
-    const {
+    const product = await Product.findById(id);
 
+    if (!product) {
+
+      return res.json({
+        success: false,
+        message: "Product not found",
+      });
+
+    }
+
+    const {
       name,
       description,
       quantity,
       category,
       price,
       offerPrice,
-
     } = req.body;
 
+    let imageUrls = product.image;
+
+    if (req.files && req.files.length > 0) {
+
+      imageUrls = await Promise.all(
+
+        req.files.map(async (item) => {
+
+          const result = await cloudinary.uploader.upload(
+            item.path,
+            {
+              resource_type: "image",
+            }
+          );
+
+          return result.secure_url;
+
+        })
+
+      );
+
+    }
+
     await Product.findByIdAndUpdate(
-
       id,
-
       {
-
         name,
         description,
         quantity,
         category,
         price,
         offerPrice,
-
+        image: imageUrls,
       }
-
     );
 
     res.json({
       success: true,
-      message:
-        "Product Updated Successfully",
+      message: "Product Updated Successfully",
     });
 
   } catch (error) {

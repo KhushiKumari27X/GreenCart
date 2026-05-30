@@ -257,17 +257,18 @@ export const AppContextProvider = ({ children }) => {
     // GET CART COUNT
     const getCartCount = () => {
 
-        let totalCount = 0;
+    let totalCount = 0;
 
-        for (const item in cartItems) {
+    for (const item in cartItems) {
 
-            totalCount += cartItems[item];
+        totalCount += cartItems[item];
 
-        }
+    }
 
-        return totalCount;
+    return totalCount;
 
-    };
+};
+    
 
     // GET CART AMOUNT
     const getCartAmount = () => {

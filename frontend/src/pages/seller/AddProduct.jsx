@@ -86,33 +86,79 @@ const AddProduct = () => {
       }
 
       // EDIT PRODUCT
+      // if (editId) {
+
+      //   const { data } = await axios.put(
+      //     `/api/product/update/${editId}`,
+      //     productData,
+      //     {
+      //       withCredentials: true
+      //     }
+      //   )
+
+      //   if (data.success) {
+
+      //     toast.success("Product Updated")
+
+      //     fetchProducts()
+
+      //     navigate('/seller/product-list')
+
+      //   } else {
+
+      //     toast.error(data.message)
+
+      //   }
+
+      //   return
+
+      // }
       if (editId) {
 
-        const { data } = await axios.put(
-          `/api/product/update/${editId}`,
-          productData,
-          {
-            withCredentials: true
-          }
-        )
+  const formData = new FormData();
 
-        if (data.success) {
+  formData.append("name", name);
+  formData.append("description", description);
+  formData.append("quantity", quantity);
+  formData.append("category", category);
+  formData.append("price", price);
+  formData.append("offerPrice", offerPrice);
 
-          toast.success("Product Updated")
+  files.forEach((file) => {
 
-          fetchProducts()
+    if (file) {
 
-          navigate('/seller/product-list')
+      formData.append("images", file);
 
-        } else {
+    }
 
-          toast.error(data.message)
+  });
 
-        }
+  const { data } = await axios.put(
+    `/api/product/update/${editId}`,
+    formData,
+    {
+      withCredentials: true,
+    }
+  );
 
-        return
+  if (data.success) {
 
-      }
+    toast.success("Product Updated");
+
+    fetchProducts();
+
+    navigate("/seller/product-list");
+
+  } else {
+
+    toast.error(data.message);
+
+  }
+
+  return;
+
+}
 
       // ADD PRODUCT
       if (files.length === 0) {
@@ -176,7 +222,7 @@ const AddProduct = () => {
         className="md:p-10 p-4 space-y-5 max-w-lg"
       >
 
-        {/* IMAGE */}
+        {/* IMAGE
         {!editId && (
 
           <div>
@@ -227,7 +273,56 @@ const AddProduct = () => {
 
           </div>
 
-        )}
+        )} */}
+        {/* IMAGE */}
+
+<div>
+
+  <p className="text-base font-medium">
+    Product Image
+  </p>
+
+  <div className="flex flex-wrap items-center gap-3 mt-2">
+
+    {Array(4).fill('').map((_, index) => (
+
+      <label key={index} htmlFor={`image${index}`}>
+
+        <input
+          type="file"
+          id={`image${index}`}
+          hidden
+          accept="image/*"
+          onChange={(e) => {
+
+            const updatedFiles = [...files];
+
+            updatedFiles[index] = e.target.files[0];
+
+            setFiles(updatedFiles);
+
+          }}
+        />
+
+        <img
+          className="max-w-24 cursor-pointer"
+          src={
+            files[index]
+              ? URL.createObjectURL(files[index])
+              : assets.upload_area
+          }
+          alt="upload"
+          width={100}
+          height={100}
+        />
+
+      </label>
+
+    ))}
+
+  </div>
+
+</div>
 
         {/* PRODUCT NAME */}
         <div className="flex flex-col gap-1 max-w-md">

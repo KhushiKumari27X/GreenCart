@@ -28,12 +28,18 @@ const Cart = () => {
     const getCart = () => {
 
         let tempArray = [];
+        console.log("cartItems =", cartItems);
 
         for (const key in cartItems) {
+            if (!cartItems[key] || cartItems[key] <= 0) continue;
+            // console.log("products =", products);
 
             const product = products.find(
-                (item) => item._id === key
+                // (item) => item._id === key
+                (item) => String(item._id) === String(key)
             );
+            console.log("KEY =", key);
+            console.log("Found Product =", product);
 
             if (product) {
 
