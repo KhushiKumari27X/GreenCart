@@ -28,7 +28,6 @@ app.use(
   })
 );
 
-// connect mongodb
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
