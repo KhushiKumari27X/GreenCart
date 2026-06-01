@@ -35,6 +35,10 @@ http://localhost:4000
 
 ![Cart](Screenshots/cart.png)
 
+## Product 
+
+![Product](Screenshots/product.png)
+
 ## Admin Dashboard
 
 ![Admin](Screenshots/admin.png)
