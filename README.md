@@ -21,6 +21,23 @@ http://localhost:4000
 ```
 
 ---
+# Project Screenshots
+
+## Home Page
+
+![Home](Screenshots/home.png)
+
+## Product List
+
+![Products](Screenshots/product-list.png)
+
+## Cart Page
+
+![Cart](Screenshots/cart.png)
+
+## Admin Dashboard
+
+![Admin](Screenshots/admin.png)
 
 # Features
 
